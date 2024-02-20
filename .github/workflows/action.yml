@@ -1,0 +1,73 @@
+name: 🚀 Deploy OLC
+run-name: Deploy OLC ${{ github.event.inputs.release_ref }} ➡️ "${{ github.event.inputs.environment }}"
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_ref:
+        description: "Enter release tag or branch name - Leave blank to release latest commit in master (ex: R170, olc-xx-nameofbranch)"
+
+      environment:
+        description: "Environment to deploy to"
+        type: choice
+        default: qa
+        options:
+          - qa
+          - stage
+          - live
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      REACT_APP_OLC_BUILD_RELEASE: ${{ github.event.inputs.release_ref }}
+      REACT_APP_OLC_BUILD_GITSHA: ${{ github.sha }}
+
+    steps:
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18.17"
+
+      - name: Checkout project
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.release_ref }}
+
+      - uses: chrnorm/deployment-action@v2
+        name: Create GitHub deployment
+        id: deployment
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          environment-url: https://cristinallamas.github.io/github-actions-testings/${{ github.event.inputs.environment }}
+          environment: "ENV ${{ github.event.inputs.environment }}"
+
+      - name: Install dependencies 📦
+        run: npm ci
+
+      # Check which environment we're deploying to and build accordingly
+      - name: Build for Dev 🚀
+        if: ${{ github.event.inputs.environment != 'live' }}
+        run: npm run build:dev
+
+      - name: Build for Prod 🚀
+        if: ${{ github.event.inputs.environment == 'live' }}
+        run: npm run build:prod
+
+      # Deploy to GitHub Pages
+      - name: Deploy 📤
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build # Set this to the path of your build directory
+          destination_dir: ${{ github.event.inputs.environment }} # Write to the selected environment directory
+
+      - name: Update deployment status (success)
+        if: success()
+        uses: chrnorm/deployment-status@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          environment-url: https://cristinallamas.github.io/github-actions-testing/${{ github.event.inputs.environment }}
+          state: "success"
+          deployment-id: ${{ steps.deployment.outputs.deployment_id }}
