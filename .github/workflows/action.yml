@@ -37,9 +37,9 @@ jobs:
         name: Create GitHub deployment
         id: deployment
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          environment-url: https://cristinallamas.github.io/github-actions-testing/${{ github.event.inputs.environment }}
-          environment: "ENV ${{ github.event.inputs.environment }}"
+           token: ${{ secrets.GITHUB_TOKEN }}
+           environment-url: https://cristinallamas.github.io/github-actions-testings/${{ github.event.inputs.environment }}
+           environment: "ENV ${{ github.event.inputs.environment }}"
 
       - name: Install dependencies 📦
         run: npm ci
