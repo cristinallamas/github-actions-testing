@@ -12,6 +12,11 @@ on:
           - qa
           - stage
           - live
+permissions:
+  contents: read
+  deployments: write
+  pull-requests: write
+  statuses: write
 
 jobs:
   build-and-deploy:
@@ -19,7 +24,6 @@ jobs:
 
     env:
       REACT_APP_OLC_BUILD_GITSHA: ${{ github.sha }}
-
     steps:
       - name: Setup Node
         uses: actions/setup-node@v3
@@ -34,7 +38,7 @@ jobs:
         id: deployment
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          environment-url: https://cristinallamas.github.io/github-actions-testings/${{ github.event.inputs.environment }}
+          environment-url: https://cristinallamas.github.io/github-actions-testing/${{ github.event.inputs.environment }}
           environment: "ENV ${{ github.event.inputs.environment }}"
 
       - name: Install dependencies 📦
