@@ -29,13 +29,13 @@ jobs:
       - name: Checkout project
         uses: actions/checkout@v4
 
-      # - uses: chrnorm/deployment-action@v2
-      #   name: Create GitHub deployment
-      #   id: deployment
-      #   with:
-      #     token: ${{ secrets.GITHUB_TOKEN }}
-      #     environment-url: https://cristinallamas.github.io/github-actions-testings/${{ github.event.inputs.environment }}
-      #     environment: "ENV ${{ github.event.inputs.environment }}"
+      - uses: chrnorm/deployment-action@v2
+        name: Create GitHub deployment
+        id: deployment
+        with:
+           token: ${{ secrets.GITHUB_TOKEN }}
+           environment-url: https://cristinallamas.github.io/github-actions-testings/${{ github.event.inputs.environment }}
+           environment: "ENV ${{ github.event.inputs.environment }}"
 
       # - name: Install dependencies 📦
       #   run: npm ci
